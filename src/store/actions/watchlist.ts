@@ -1,13 +1,13 @@
 import { Action } from "redux";
 import { ThunkDispatch } from "redux-thunk";
-import cmpData from "../../data/CoinMarketCap";
 import Coin from "../../models/Coin";
-import { WatchlistState } from "../reducers/watchlist";
+import cmpData from "../../data/CoinMarketCap";
+import { WatchListState } from "../reducers/watchlist";
 
 export const SET_WATCHLIST_DATA = "SET_WATCHLIST_DATA";
 
 export const fetchCoinData = () => {
-  return async (dispatch: ThunkDispatch<WatchlistState, void, Action>) => {
+  return async (dispatch: ThunkDispatch<WatchListState, void, Action>) => {
     const coins = ["BTC", "ETH", "XRP", "DOGE", "SHIB", "MANA"];
 
     try {
@@ -37,8 +37,6 @@ export const fetchCoinData = () => {
         );
       });
 
-      console.log(coinData);
-
       dispatch({
         type: SET_WATCHLIST_DATA,
         coinData: coinData,
@@ -50,7 +48,7 @@ export const fetchCoinData = () => {
 };
 
 export const updateCoinData = (newData: Coin[]) => {
-  return async (dispatch: ThunkDispatch<WatchlistState, void, Action>) => {
+  return async (dispatch: ThunkDispatch<WatchListState, void, Action>) => {
     dispatch({
       type: SET_WATCHLIST_DATA,
       coinData: newData,

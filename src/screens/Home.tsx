@@ -1,3 +1,4 @@
+import React, { useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -7,19 +8,59 @@ import {
   Image,
 } from "react-native";
 import Colors from "../constants/Colors";
-import React, { useEffect } from "react";
 import CBButton from "../components/CBButton";
 
-import { WatchlistState } from "../store/reducers/watchlist";
-import * as watchListActions from "../store/actions/watchlist";
 import { useSelector, useDispatch } from "react-redux";
 
-const Home = () => {
+import { WatchListState } from "../store/reducers/watchlist";
+import { TopmoversState } from "../store/reducers/topmovers";
+import { NewsState } from "../store/reducers/news";
+import * as watchListActions from "../store/actions/watchlist";
+import * as topmoversAction from "../store/actions/topmovers";
+import * as newsAction from "../store/actions/news";
+
+import WatchList from "../components/WatchList";
+import TopMoversListItem from "../components/TopMoversListItem";
+import TopMovers from "../components/TopMoversList";
+import NewsListItem from "../components/NewsListItem";
+import NewsList from "../components/NewsList";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "../navigation/AppNavigator";
+
+interface RootState {
+  watchList: WatchListState;
+  topMovers: TopmoversState;
+  news: NewsState;
+}
+
+type HomeScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  "HomeScreen"
+>;
+
+type Props = {
+  navigation: HomeScreenNavigationProp;
+};
+
+const Home = ({ navigation }: Props) => {
   const dispatch = useDispatch();
+
+  const watchlistData = useSelector(
+    (state: RootState) => state?.watchList.watchListData
+  );
+
+  const topMoversData = useSelector(
+    (state: RootState) => state?.topMovers?.topMoversData
+  );
+
+  const newsData = useSelector((state: RootState) => state?.news?.newsDate);
 
   const loadData = () => {
     try {
       dispatch(watchListActions.fetchCoinData() as any);
+      dispatch(topmoversAction.fetchTopMoversData() as any);
+      dispatch(newsAction.fetchNewsData() as any);
     } catch (err) {
       console.log(err);
     }
@@ -29,6 +70,10 @@ const Home = () => {
     loadData();
   }, []);
 
+  const viewMoreHandler = () => {
+    navigation.navigate("News");
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={{ alignItems: "center" }}>
@@ -36,15 +81,26 @@ const Home = () => {
           style={styles.image}
           source={{ uri: "https://i.imgur.com/9EEaSaS.png" }}
         />
-        <Text style={styles.title}>Welcome to CoinBase</Text>
-        <Text style={styles.subTitle}>Make your first investment today!</Text>
+        <Text style={styles.title}>Welcome to Coinbase!</Text>
+        <Text style={styles.subTitle}>Make your first investment today</Text>
         <CBButton title="Get Started" />
+        <WatchList coinData={watchlistData} />
+        <TopMovers coinData={topMoversData} />
+        <NewsList
+          newsData={newsData}
+          isHomeScreen={true}
+          viewMoreHandler={viewMoreHandler}
+        />
       </ScrollView>
     </SafeAreaView>
   );
 };
 
-export default Home;
+export const screenOptions = () => {
+  return {
+    headerShown: false,
+  };
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -64,8 +120,10 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   subTitle: {
-    fontSize: 18,
+    fontSize: 17,
     marginBottom: 24,
     color: Colors.subtitle,
   },
 });
+
+export default Home;
